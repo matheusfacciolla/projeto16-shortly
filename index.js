@@ -4,14 +4,15 @@ import chalk from "chalk";
 import cors from "cors";
 
 import authRouter from "./src/routers/authRouter.js";
-import urlRouter from "./src/routers/urlRouter.js"
+import urlRouter from "./src/routers/urlRouter.js";
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(json());
 app.use(authRouter);
-app.use(urlRouter);
+app.use(urlRouter)
 
 
 app.listen(process.env.PORT, () => {
