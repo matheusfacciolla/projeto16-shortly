@@ -22,6 +22,35 @@ export async function validateUrl(req, res, next) {
 }
 
 export async function validateShortenUrl(req, res, next) {
+    const { shortUrl } = req.params;
+
+    console.log(shortUrl)
+
+    try {
+        const shortenUrlExist = await connection.query(`
+        SELECT * 
+        FROM urls 
+        WHERE "shortUrl" = $1;
+        `, [shortUrl]);
+
+        console.log(shortenUrlExist.rows)
+
+        if (shortenUrlExist.rows[0].length == 0) {
+            console.log("AQUIII1111")
+            res.sendStatus(404);
+            return;
+        }
+
+        next();
+
+    } catch (e) {
+        console.log(e);
+        res.status(422).send(`Ocorreu um erro ao tentar buscar a url de id = ${id}!`);
+        return;
+    }
+}
+
+export async function validateDeleteUrl(req, res, next) {
     const { id } = req.params;
 
     try {
@@ -36,11 +65,13 @@ export async function validateShortenUrl(req, res, next) {
             return;
         }
 
+        //Deve responder com status code 401 quando a url encurtada não pertencer ao usuário.
+
         next();
 
     } catch (e) {
         console.log(e);
-        res.status(422).send(`Ocorreu um erro ao tentar buscar a url de id = ${id}!`);
+        res.status(422).send(`Ocorreu um erro ao tentar deletar a url!`);
         return;
     }
 }

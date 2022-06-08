@@ -48,26 +48,41 @@ export async function getUrlById(req, res) {
 }
 
 export async function getShortenUrl(req, res) {
-    const { shortenUrl } = req.params;
-    const countViews = 0;
+    const { shortUrl } = req.params;
 
     try {
+        const redirect = await connection.query(`
+        SELECT * FROM urls 
+        WHERE "shortUrl" = $1
+        ;`, [shortUrl]);
+
+        let countViews = redirect.rows[0].views + (1);
+
         await connection.query(`
         UPDATE urls 
         SET views = $1
-        WHERE "shortenUrl" = $2
-        ;`, [countViews++, shortenUrl]);
-
-        const redirect = await connection.query(`
-        SELECT * FROM urls 
-        WHERE "shortenUrl" = $1
-        ;`, [shortenUrl]);
+        WHERE "shortUrl" = $2
+        ;`, [countViews, shortUrl]);
 
         res.redirect(301, `${redirect.rows[0].shortUrl}`)
 
     } catch (e) {
         console.log(e);
         res.status(422).send(`Ocorreu um erro ao tentar redirecionar para a url encurtada!`);
+        return;
+    }
+}
+
+export async function deleteUrl(req, res) {
+    const { id } = req.params;
+
+    try {
+        await connection.query(`DELETE FROM urls WHERE id = $1;`, [id]);
+        res.sendStatus(204);
+
+    } catch (e) {
+        console.log(e);
+        res.status(404).send("Ocorreu um erro ao deletar a url!");
         return;
     }
 }
