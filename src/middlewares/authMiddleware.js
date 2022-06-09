@@ -14,7 +14,7 @@ export async function validateSignUp(req, res, next) {
     }
 
     if (password != confirmPassword) {
-        res.status(422).send(validation.error.details.map((error) => error.message));
+        res.status(422).send("Senhas diferentes!");
         return;
     }
 
@@ -26,7 +26,7 @@ export async function validateSignUp(req, res, next) {
         `, [email]);
 
         if (isEmailExist.rows[0] != undefined) {
-            res.sendStatus(409);
+            res.status(409).send("Esse email ja existe!");
             return;
         }
 
@@ -54,6 +54,7 @@ export async function validateSignIn(req, res, next) {
         FROM users 
         WHERE email = $1;
         `, [email]);
+        
         const isCorrectPassword = bcrypt.compareSync(password, user.rows[0].password);
 
         if (!user || !isCorrectPassword) {

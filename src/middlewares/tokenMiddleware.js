@@ -19,8 +19,6 @@ export async function validateToken(req, res, next) {
         }
 
         res.locals.session = session;
-
-        console.log("locals222222",res.locals.user)
     
         next();
 

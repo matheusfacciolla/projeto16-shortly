@@ -9,7 +9,7 @@ export async function validateUser(req, res, next) {
         WHERE id = $1;
         `, [id]);
 
-        if (user.length == 0) {
+        if (!user.rows[0]) {
             res.sendStatus(404);
             return;
         }
