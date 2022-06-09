@@ -24,11 +24,16 @@ export async function signUp(req, res) {
 }
 
 export async function signIn(req, res) {
-    const { user } = res.locals;
+    const { email } = req.body;
 
     try {
         const token = v4();
         const createdAt = dayjs(Date.now()).format("DD-MM-YYYY");
+
+        const user =  await connection.query(`
+        SELECT * FROM users
+        WHERE email = $1
+        ;`, [email]);
 
         await connection.query(`
         INSERT INTO sessions (token, "userId", "createdAt") 
@@ -37,7 +42,8 @@ export async function signIn(req, res) {
 
         const session =  await connection.query(`
         SELECT * FROM sessions
-        `);
+        WHERE "userId" = $1
+        ;`, [user.rows[0].id]);
 
         res.send(session.rows[0].token).status(200);
 

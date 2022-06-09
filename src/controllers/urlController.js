@@ -5,15 +5,15 @@ import connection from "../../db.js";
 
 export async function shortenUrl(req, res) {
     const { url } = req.body;
-    const { user } = res.locals;
+    const { session } = res.locals;
     const shortUrl = nanoid();
     const createdAt = dayjs(Date.now()).format("DD-MM-YYYY");
 
     try {
         const sessionUserId = await connection.query(`
-        SELECT * FROM session
+        SELECT * FROM sessions
         WHERE "userId" = $1
-        ;`, [user.id]);
+        ;`, [session.rows[0].userId]);
 
         await connection.query(`
         INSERT INTO urls (url, "shortUrl", "userId", "createdAt") 
@@ -47,7 +47,7 @@ export async function getUrlById(req, res) {
     }
 }
 
-export async function getShortenUrl(req, res) {
+export async function getShortenUrl(req, res, next) {
     const { shortUrl } = req.params;
 
     try {
@@ -64,7 +64,7 @@ export async function getShortenUrl(req, res) {
         WHERE "shortUrl" = $2
         ;`, [countViews, shortUrl]);
 
-        res.redirect(301, `${redirect.rows[0].shortUrl}`)
+        return res.redirect(301, `http://${redirect.rows[0].shortUrl}`);
 
     } catch (e) {
         console.log(e);

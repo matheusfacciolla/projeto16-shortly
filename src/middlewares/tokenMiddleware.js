@@ -17,6 +17,10 @@ export async function validateToken(req, res, next) {
         if (!session.rows[0]) {
             return res.sendStatus(401);
         }
+
+        res.locals.session = session;
+
+        console.log("locals222222",res.locals.user)
     
         next();
 
