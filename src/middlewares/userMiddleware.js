@@ -2,6 +2,7 @@ import connection from "../../db.js";
 
 export async function validateUser(req, res, next) {
     const { id } = req.params;
+    const { session } = res.locals;
 
     try {
         const user = await connection.query(`
@@ -11,6 +12,11 @@ export async function validateUser(req, res, next) {
 
         if (!user.rows[0]) {
             res.sendStatus(404);
+            return;
+        }
+
+        if(id != session.rows[0].userId){
+            res.sendStatus(401);
             return;
         }
 
