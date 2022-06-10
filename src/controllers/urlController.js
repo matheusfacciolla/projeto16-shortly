@@ -62,7 +62,7 @@ export async function getShortenUrl(req, res, next) {
         WHERE "shortUrl" = $2
         ;`, [countViews, shortUrl]);
 
-        return res.redirect(200, `http://${redirect.rows[0].url}`);
+        return res.redirect(200, redirect.rows[0].url);
 
     } catch (e) {
         console.log(e);
