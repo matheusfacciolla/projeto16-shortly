@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid';
-import dayjs from "dayjs";
 
 import connection from "../../db.js";
 
@@ -7,7 +6,6 @@ export async function shortenUrl(req, res) {
     const { url } = req.body;
     const { session } = res.locals;
     const shortUrl = nanoid();
-    const createdAt = dayjs(Date.now()).format("DD-MM-YYYY");
 
     try {
         const sessionUserId = await connection.query(`
@@ -16,9 +14,9 @@ export async function shortenUrl(req, res) {
         ;`, [session.rows[0].userId]);
 
         await connection.query(`
-        INSERT INTO urls (url, "shortUrl", "userId", "createdAt") 
-        VALUES ($1, $2, $3, $4);
-        `, [url, shortUrl, sessionUserId.rows[0].userId, createdAt]);
+        INSERT INTO urls (url, "shortUrl", "userId") 
+        VALUES ($1, $2, $3);
+        `, [url, shortUrl, sessionUserId.rows[0].userId]);
 
         res.status(201).send(shortUrl);
 
@@ -64,7 +62,7 @@ export async function getShortenUrl(req, res, next) {
         WHERE "shortUrl" = $2
         ;`, [countViews, shortUrl]);
 
-        return res.redirect(301, `http://${redirect.rows[0].shortUrl}`);
+        return res.redirect(200, `http://${redirect.rows[0].shortUrl}`);
 
     } catch (e) {
         console.log(e);

@@ -19,7 +19,7 @@ export async function validateToken(req, res, next) {
         }
 
         res.locals.session = session;
-    
+
         next();
 
     } catch (e) {

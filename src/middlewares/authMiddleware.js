@@ -54,10 +54,15 @@ export async function validateSignIn(req, res, next) {
         FROM users 
         WHERE email = $1;
         `, [email]);
-        
+
+        if (!user.rows[0]) {
+            res.sendStatus(401);
+            return;
+        }
+
         const isCorrectPassword = bcrypt.compareSync(password, user.rows[0].password);
 
-        if (!user || !isCorrectPassword) {
+        if (!isCorrectPassword) {
             res.sendStatus(401);
             return;
         }

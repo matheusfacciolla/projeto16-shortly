@@ -64,7 +64,7 @@ export async function validateRedirectShortenUrl(req, res, next) {
 
     } catch (e) {
         console.log(e);
-        res.status(422).send(`Ocorreu um erro ao tentar buscar a url = ${shortUrl}!`);
+        res.status(422).send(`Ocorreu um erro ao tentar redirecionar a url = ${shortUrl}!`);
         return;
     }
 }

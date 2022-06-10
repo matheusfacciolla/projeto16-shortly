@@ -5,9 +5,9 @@ export async function getUserById(req, res) {
 
     try {
         const userById = await connection.query(`
-        SELECT users.id, users.name, SUM(urls.views) AS "visitCount"
+        SELECT users.id, users.name, COALESCE(SUM(urls.views), 0) AS "visitCount"
         FROM users
-        JOIN urls ON urls."userId" = users.id
+        LEFT JOIN urls ON urls."userId" = users.id
         WHERE users.id = $1
         GROUP BY users.id
         ;`, [id]);
@@ -36,11 +36,12 @@ export async function getUserById(req, res) {
 export async function getRanking(req, res) {
     try {
         const usersRanking = await connection.query(`
-        SELECT  users.id, users.name, COUNT(urls.url) AS "linksCount", SUM(urls.views) AS "visitCount"
+        SELECT  users.id, users.name, COUNT(urls.url) AS "linksCount", COALESCE(SUM(urls.views), 0) AS "visitCount"
         FROM users
         LEFT JOIN urls ON users.id = urls."userId"
         GROUP BY users.id
-        ORDER BY "visitCount" DESC LIMIT 10 
+        ORDER BY "visitCount" DESC, "linksCount" DESC
+        LIMIT 10 
         ;`);
 
         res.status(200).send(usersRanking.rows);

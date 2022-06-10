@@ -1,19 +1,17 @@
 import bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
-import dayjs from "dayjs";
 
 import connection from "../../db.js";
 
 export async function signUp(req, res) {
     const { name, email, password, confirmPassword } = req.body;
     const passwordHash = bcrypt.hashSync(password, 10);
-    const createdAt = dayjs(Date.now()).format("DD-MM-YYYY");
 
     try {
         await connection.query(`
-        INSERT INTO users (name, email, password, "confirmPassword", "createdAt") 
-        VALUES ($1, $2, $3, $4, $5);
-        `, [name, email, passwordHash, passwordHash, createdAt]);
+        INSERT INTO users (name, email, password, "confirmPassword") 
+        VALUES ($1, $2, $3, $4);
+        `, [name, email, passwordHash, passwordHash]);
         res.sendStatus(201);
 
     } catch (e) {
@@ -28,19 +26,18 @@ export async function signIn(req, res) {
 
     try {
         const token = v4();
-        const createdAt = dayjs(Date.now()).format("DD-MM-YYYY");
 
-        const user =  await connection.query(`
+        const user = await connection.query(`
         SELECT * FROM users
         WHERE email = $1
         ;`, [email]);
 
         await connection.query(`
-        INSERT INTO sessions (token, "userId", "createdAt") 
-        VALUES ($1, $2, $3);
-        `, [token, user.rows[0].id, createdAt]);
+        INSERT INTO sessions (token, "userId") 
+        VALUES ($1, $2);
+        `, [token, user.rows[0].id]);
 
-        const session =  await connection.query(`
+        const session = await connection.query(`
         SELECT * FROM sessions
         WHERE "userId" = $1
         ;`, [user.rows[0].id]);
